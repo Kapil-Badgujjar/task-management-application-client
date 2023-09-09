@@ -1,0 +1,36 @@
+.home{
+    display: flex;
+    flex-direction: column;
+}
+.leftSide{
+    box-sizing: border-box;
+    display: none;
+}
+.rightSide{
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+.bottomNavigation{
+    display: flex;
+    border-top: 2px solid rgb(0, 114, 221);
+}
+@media screen and (min-width: 640px){
+    .home{
+        box-sizing: border-box;
+        flex-direction: row;
+        height: 100vh;
+    }
+    .leftSide{
+        display: flex;
+    }
+    .rightSide{
+        width: 100%;
+    }
+    .bottomNavigation{
+        display: none !important;
+    }
+
+}
