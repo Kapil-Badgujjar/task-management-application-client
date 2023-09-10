@@ -5,26 +5,28 @@ const loginUser = createAsyncThunk(
     async (_,thunkAPI)=>{
         try {
             const { email_id, password } = thunkAPI.getState().user.user;
-        
-            const response = await fetch('http://localhost:7171/users/login', {
+            const response =  await fetch('http://localhost:7171/users/login', {
                 credentials: 'include',
                 method: 'POST',
                 mode: 'cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email_id, password })
-            });
-        
-            if (response.status === 200) {
-                console.log('Success');
-                const responseData = await response.json(); // Parse the response body
-                return responseData; // Return the parsed data
-            } else {
-                console.log('Error:', response.status);
-                throw new Error('Login failed'); // Handle the error as needed
+            }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Invalid - Check Email/Password again!')});
+
+            console.log(response);
+            localStorage.setItem('albedoAccessToken', response.albedoAccessToken);
+            return {
+                id: response.id,
+                email_id: response.email_id,
+                username: response.username,
+                password: undefined,
+                role: response.role,
+                update_email: undefined,
+                update_new_password: undefined,
+                update_confirm_password: undefined
             }
         } catch (error) {
-            console.log('Error:', error.message);
-            throw error;
+            throw new Error(error.message);
         }
     }
 )
@@ -35,7 +37,11 @@ const initialState = {
         email_id: undefined,
         password: undefined,
         username: undefined,
-        role: undefined
+        role: undefined,
+        update_email: undefined,
+        update_username: undefined,
+        update_new_password: undefined,
+        update_confirm_password: undefined
     },
     status: 'idle',
     error: null
@@ -51,9 +57,16 @@ const userSlice = createSlice({
         setPasswordValue: (state, action) => {
             state.user.password = action.payload;
         },
+        logout: (state, action) => {
+            state.user = initialState;
+        },
+        removeError: (state, action) => {
+            state.error = null;
+        }
     },
     extraReducers: (builder) =>{
         builder.addCase(loginUser.pending,(state, action)=>{
+
             state.status = 'pending';
         })
         .addCase(loginUser.fulfilled,(state, action)=>{
@@ -61,7 +74,19 @@ const userSlice = createSlice({
             state.status = 'fulfilled';
         })
         .addCase(loginUser.rejected,(state, action)=>{
-            state.error = 'error occured';
+            state.status = 'failed';
+            state.error = action.error.message;
+            state.user = {
+                id: undefined,
+                email_id: undefined,
+                password: undefined,
+                username: undefined,
+                role: undefined,
+                update_email: undefined,
+                update_username: undefined,
+                update_new_password: undefined,
+                update_confirm_password: undefined
+            }
         });
     }
 })
@@ -69,7 +94,8 @@ const userSlice = createSlice({
 export { loginUser };
 
 export const selectUser = (state) => state.user.user;
+export const selectLoginError = (state) => state.user.error;
 
-export const { setEmailValue, setPasswordValue } = userSlice.actions;
+export const { setEmailValue, setPasswordValue, removeError, logout } = userSlice.actions;
 
 export default userSlice.reducer;

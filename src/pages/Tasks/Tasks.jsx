@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Tasks.module.css';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import TaskIcon from '@mui/icons-material/Task';
+import { useDispatch, useSelector } from 'react-redux';
+import { getTasks, selectTasks } from '../../features/taskSlice/taskSlice';
+import Table from '../../components/Table';
 
 export default function Tasks() {
+    const dispatch = useDispatch();
+    // const tasks = useSelector(selectTasks);
+    useEffect(()=>{
+        dispatch(getTasks());
+    },[]);
   return (
     <div className={styles.tasks}>
         <Box sx={{ flexGrow: 1 }}>
@@ -30,9 +36,7 @@ export default function Tasks() {
                 </Toolbar>
             </AppBar>
         </Box>
-        <Stack spacing={2}>
-            <Pagination count={10} color="primary" />
-        </Stack>
+        <Table />
     </div>
   )
 }

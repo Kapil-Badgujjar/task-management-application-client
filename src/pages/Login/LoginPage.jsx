@@ -4,23 +4,27 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Paper from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import styles from './Login.module.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectUser, setEmailValue, setPasswordValue, loginUser } from '../../features/userSlice/userSlice';
+import { selectUser, selectLoginError, setEmailValue, setPasswordValue, loginUser, removeError } from '../../features/userSlice/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const user = useSelector(selectUser);
+  const error = useSelector(selectLoginError);
   const dispatch = useDispatch();
   function handleSubmit(event){
     event.preventDefault();
     dispatch(loginUser());
-    console.log('Dispatched login');
   }
+  useEffect(()=>{
+    setTimeout(()=>{dispatch(removeError())},2000);
+  },[error]);
   useEffect(() => {
     if(user?.id){
       navigate('/dashboard');
@@ -37,6 +41,7 @@ export default function LoginPage() {
                 <Typography variant="h4" gutterBottom>
                   Login to your account
                 </Typography>
+                {error && <Alert severity="error">{error}</Alert>}
                 <TextField color="primary" id="email" label="Email" variant="outlined" type="email" value={user.email_id ? user.email_id: ''} onChange={(e)=>{dispatch(setEmailValue(e.target.value))}}/>
                 <TextField color="primary" id="password" label="Password" variant="outlined" type="password" value={user.password ? user.password: ''} onChange={(e)=>{dispatch(setPasswordValue(e.target.value))}}/>
                 <Button color="primary" variant="contained" onClick={e=>handleSubmit(e)}>Login</Button>
@@ -51,17 +56,20 @@ export default function LoginPage() {
                 >
                  Forgot Password
                 </Link>
+                <div >
+                Don't have an account?&nbsp;&nbsp;
                 <Link
                   className={styles.links}
-                  component="button"
                   variant="body2"
+                  sx={{cursor: 'pointer'}}
                   onClick={(e) => {
                     e.preventDefault();
                     console.info("I'm a button.");
                   }}
                 >
-                 Don't have an Account? Create Now
+                 Register now
                 </Link>
+                </div>
               </div>
           </Paper>
         </Box>

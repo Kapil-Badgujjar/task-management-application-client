@@ -12,7 +12,9 @@ import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import Dashboard from '@mui/icons-material/Dashboard';
 import Task from '@mui/icons-material/Task';
 import Person from '@mui/icons-material/Person';
-import ModeEdit from '@mui/icons-material/ModeEdit';
+import ManageAccounts from '@mui/icons-material/ManageAccounts';
+import { useSelector } from 'react-redux';
+import { selectUser } from '../../features/userSlice/userSlice';
 
 const style = {
   width: '100%',
@@ -23,6 +25,7 @@ const style = {
 
 export default function Home() {
   const [value, setValue] = React.useState('recents');
+  const user = useSelector(selectUser);
   const navigate = useNavigate();
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -58,7 +61,7 @@ export default function Home() {
                             <ListItem button divider  onClick={()=>{navigate('/tasks')}}>
                                 <ListItemText primary="Tasks" />
                             </ListItem>
-                            <ListItem button  onClick={()=>{navigate('/users')}}>
+                            <ListItem button  onClick={()=>{navigate('/users')}} disabled={user.role === 'Admin'? false:true}>
                                 <ListItemText primary="Users" />
                             </ListItem>
                             <Divider light />
@@ -73,8 +76,8 @@ export default function Home() {
             <BottomNavigation className={styles.bottomNavigation} sx={{ width: '100%' }} value={value} onChange={handleChange}>
                 <BottomNavigationAction label="Dashboard" value="dashboard" icon={<Dashboard />}/>
                 <BottomNavigationAction label="Tasks" value="tasks" icon={<Task />}/>
-                <BottomNavigationAction label="Users" value="users" icon={<Person />}/>
-                <BottomNavigationAction label="Edit Profile" value="profile" icon={<ModeEdit />}/>
+                <BottomNavigationAction label="Users" value="users" icon={<Person />} sx={{color: user.role === 'Admin' ? '#666666':'#CCCCCC'}} disabled={user.role === 'Admin'? false:true}/>
+                <BottomNavigationAction label="Edit Profile" value="profile" icon={<ManageAccounts />}/>
             </BottomNavigation>
         </div>
     </div>

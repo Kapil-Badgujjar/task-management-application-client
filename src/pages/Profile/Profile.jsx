@@ -5,21 +5,22 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
-import ModeEdit from '@mui/icons-material/ModeEdit';
+import ManageAccounts from '@mui/icons-material/ManageAccounts';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import { useSelector } from 'react-redux';
-import { selectUser } from '../../features/userSlice/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { selectUser, logout } from '../../features/userSlice/userSlice';
 import { Link } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const user = useSelector(selectUser);
   return (
     <div className={styles.profile}>
-        <Box sx={{ flexGrow: 1 }}>
+            <Box sx={{ flexGrow: 1}}>
             <AppBar position="static">
                 <Toolbar>
                 <IconButton
@@ -29,11 +30,12 @@ export default function Profile() {
                     aria-label="menu"
                     sx={{ mr: 2 }}
                 >
-                    <ModeEdit />
+                    <ManageAccounts />
                 </IconButton>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Edit Profile
                 </Typography>
+                <Button variant="text" sx={{color: '#fff', outline: '1px solid #fff'}} onClick={()=>{dispatch(logout()); navigate('/login')}}>Logout</Button>
                 </Toolbar>
             </AppBar>
         </Box>
