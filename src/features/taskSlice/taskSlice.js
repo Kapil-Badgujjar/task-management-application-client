@@ -5,7 +5,7 @@ const getTasks = createAsyncThunk(
     async(_,thunkAPI) => {
         const token = localStorage.getItem('albedoAccessToken');
         try{
-            const response = await fetch('http://localhost:7171/tasks/fetchtasksbyuser',{
+            const response = await fetch('http://localhost:7171/tasks/fetchtasks',{
                 credentials: 'include',
                 method: 'GET',
                 mode: 'cors',

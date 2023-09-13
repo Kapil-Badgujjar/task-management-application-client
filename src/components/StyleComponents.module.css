@@ -1,0 +1,6 @@
+
+@media screen and (min-width: 640px) {
+    .datagrid{
+        height: calc(100vh - 64px) !important;
+    }
+}

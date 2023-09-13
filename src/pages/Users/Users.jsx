@@ -1,13 +1,12 @@
 import React from 'react';
 import styles from './Users.module.css';
-import Pagination from '@mui/material/Pagination';
-import Stack from '@mui/material/Stack';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import Person from '@mui/icons-material/Person';
+import UsersTable from '../../components/UsersTable';
 
 export default function Users() {
   return (
@@ -30,9 +29,7 @@ export default function Users() {
                 </Toolbar>
             </AppBar>
         </Box>
-        <Stack spacing={2}>
-            <Pagination count={10} color="primary" />
-        </Stack>
+        <UsersTable />
     </div>
   )
 }

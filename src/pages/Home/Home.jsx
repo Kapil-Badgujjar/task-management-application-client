@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Home.module.css';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -13,8 +13,10 @@ import Dashboard from '@mui/icons-material/Dashboard';
 import Task from '@mui/icons-material/Task';
 import Person from '@mui/icons-material/Person';
 import ManageAccounts from '@mui/icons-material/ManageAccounts';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectUser } from '../../features/userSlice/userSlice';
+import { getUsers } from '../../features/adminSlice/adminSlice';
+import { getTasks } from '../../features/taskSlice/taskSlice';
 
 const style = {
   width: '100%',
@@ -24,6 +26,13 @@ const style = {
 
 
 export default function Home() {
+
+  const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(getUsers());
+        dispatch(getTasks());
+    },[]);
+
   const [value, setValue] = React.useState('recents');
   const user = useSelector(selectUser);
   const navigate = useNavigate();

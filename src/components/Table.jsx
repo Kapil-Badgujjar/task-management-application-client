@@ -1,4 +1,5 @@
 import * as React from 'react';
+import styles from './StyleComponents.module.css';
 import { DataGrid } from '@mui/x-data-grid';
 import PropTypes from 'prop-types';
 import List from '@mui/material/List';
@@ -115,14 +116,15 @@ export default function DataTable() {
     };
 
     const tasks = useSelector(selectTasks);
-    React.useEffect(()=>{
-        console.log(tasks);
-    },[]);
+    // React.useEffect(()=>{
+    //     console.log(tasks);
+    // },[]);
 
   return (
     <div style={{width: '100%' }}>
       <DataGrid
-        sx={{ height: 'calc(100vh - 114px)', boxSizing: 'border-box', overflow: 'hidden' }}
+        className={styles.datagrid}
+        sx={{ height: 'calc(100vh - 116px)', boxSizing: 'border-box', overflow: 'hidden' }}
         rows={tasks}
         columns={columns}
         initialState={{
