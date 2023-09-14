@@ -2,42 +2,54 @@ import * as React from 'react';
 import styles from './StyleComponents.module.css';
 import { DataGrid } from '@mui/x-data-grid';
 import PropTypes from 'prop-types';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { selectTasks } from '../features/taskSlice/taskSlice';
-
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-
 import TextField from '@mui/material/TextField';
 import { Button } from '@mui/material';
+import { selectUser } from '../features/userSlice/userSlice';
+import { setTitle, setDeadline, setTags, setDescription, selectTask, setTask, updateTask, setStatus, resetTask, updateStatus } from '../features/adminSlice/adminSlice';
+import { setId, saveComment, selectComment, writeComment } from '../features/commentsSlice/commentsSlice';
 
-const taskStatus = ['Assigned', 'In Progress', 'Done'];
+// function to get next day date for default date in create new task
+function getDate() {
+  const currentDate = new Date(Date.now());
+  const nextDay = new Date(currentDate);
+  nextDay.setDate(currentDate.getDate() + 1);
+  const year = nextDay.getFullYear();
+  const month = String(nextDay.getMonth() + 1).padStart(2, '0');
+  const day = String(nextDay.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 function SimpleDialog(props) {
-  const { onClose, selectedValue, open } = props;
+  const dispatch = useDispatch();
+  const { onClose, open } = props;
+  
+  const user = useSelector(selectUser);
+  const task = useSelector(selectTask)
+  const comment = useSelector(selectComment);
 
   const handleClose = () => {
-    onClose(selectedValue);
+    dispatch(resetTask());
+    onClose();
   };
 
-  const handleListItemClick = (value) => {
-    onClose(value);
+  const handleSubmit = () => {
+    if(user?.role === 'Admin') dispatch(updateTask());
+    else dispatch(updateStatus());
+    dispatch(saveComment());
+    onClose();
   };
 
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
-
   return (
     <Dialog
         fullScreen={fullScreen}
@@ -46,27 +58,26 @@ function SimpleDialog(props) {
         onClose={handleClose}>
             <div style={{display: 'flex', gap:'10px'}}>
                 <div>
-                    <DialogTitle >Update status</DialogTitle>
+                    <DialogTitle >{user?.role === 'Admin' ? 'Update task' : 'Update status'}</DialogTitle>
+                        {user?.role === 'Admin' && 
+                        <>
+                         <TextField sx={{mx: 3, mb: 2 }} id="title" label="*Title" value={task.title ? task.title: ''} onChange={(e) => { dispatch(setTitle(e.target.value))}}/>
+                         <TextField sx={{mx: 3, mb: 2 }} id="description" label="Description" type="text"  value={task?.description ? task.description: ''} onChange={(e) => { dispatch(setDescription(e.target.value))}}/>
+                         <TextField sx={{mx: 3, mb: 2 }} id="tag" label="Tags" type="text" value={task?.tags ? task.tags:''} onChange={(e) => { dispatch(setTags(e.target.value))}}/>
+                         <TextField sx={{mx: 3, mb: 2 }} id="deadline" label="*Deadline" variant='standard' type='date' value={task.deadline ? task.deadline: getDate()} onChange={(e) => { dispatch(setDeadline(e.target.value))}}/>
+                        </>
+                         }
+                        
                         <RadioGroup
                         sx={{px:3}}
                             aria-labelledby="demo-radio-buttons-group-label"
-                            defaultValue="Assigned"
                             name="radio-buttons-group"
-                            onChange={(e,value) =>{console.log(value)}}
+                            onChange={(e,value) =>{dispatch(setStatus(value))}}
                         >
-                            <FormControlLabel value="Assigned" control={<Radio />} label="Assigned" />
-                            <FormControlLabel value="In Progress" control={<Radio />} label="In Progress" />
-                            <FormControlLabel value="Done" control={<Radio />} label="Done" />
+                            <FormControlLabel value="Assigned" control={<Radio checked={task?.status === 'Assigned'}/>} label="Assigned" />
+                            <FormControlLabel value="In Progress" control={<Radio checked={task?.status === 'In Progress'} />} label="In Progress" />
+                            <FormControlLabel value="Done" control={<Radio checked={task?.status === 'Done'} />} label="Done" />
                         </RadioGroup>
-                    {/* <List sx={{ pt: 0 }}>
-                        {taskStatus.map((status) => (
-                        <ListItem disableGutters key={status}>
-                            <ListItemButton onClick={() => handleListItemClick(status)}>
-                            <ListItemText primary={status} />
-                            </ListItemButton>
-                        </ListItem>
-                        ))}
-                    </List> */}
                 </div>
                 <div style={{paddingBottom: '12px'}}>
                     <DialogTitle sx={{mr: 3}} >Add Comment</DialogTitle>
@@ -76,11 +87,17 @@ function SimpleDialog(props) {
                         label="Add Comment"
                         multiline
                         rows={4}
-                        defaultValue=""
+                        value = {comment}
+                        onChange={(e) => {dispatch(writeComment(e.target.value))}}
                     />
+                    <DialogTitle sx={{mr: 3}} >Comments</DialogTitle>
+                    <div className={styles.commentslist}>
+
+                    </div>
                 </div>
             </div>
-            <Button sx={{mb: 3, mx: 3}} variant="contained">Submit</Button>
+            <Button sx={{mb: 3, mx: 3}} variant="contained" onClick={handleSubmit}>{user?.role === 'Admin' ? 'Update': 'Submit'}</Button>
+            <Button sx={{mb: 3, mx: 3}} variant="outlined" onClick={onClose}>Cancel</Button>
     </Dialog>
   );
 }
@@ -88,13 +105,13 @@ function SimpleDialog(props) {
 SimpleDialog.propTypes = {
   onClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  selectedValue: PropTypes.string.isRequired,
 };
 
 const columns = [
   { field: 'id', headerName: 'ID', width: 120 },
   { field: 'title', headerName: 'Title', width: 150 },
   { field: 'status', headerName: 'Status', width: 150 },
+  { field: 'deadline', headerName: 'Deadline', width: 250 },
   { field: 'tag', headerName: 'Tag', width: 200 },
   { field: 'description', headerName: 'Description', width: 350 },
 ];
@@ -102,23 +119,20 @@ const columns = [
 export default function DataTable() {
     // *Please note - thesse useStates are used by MUI Components
     const [open, setOpen] = React.useState(false);
-    const [selectedValue, setSelectedValue] = React.useState(taskStatus[0]);
-  
+    // const user = useSelector(selectUser);
+    const dispatch = useDispatch();
+
     const handleClickOpen = (params) => {
-        setSelectedValue(params.value);
+      dispatch(setTask(params.row));
+      dispatch(setId(params.row.id));
       setOpen(true);
     };
   
-    const handleClose = (value) => {
+    const handleClose = () => {
       setOpen(false);
-      setSelectedValue(value);
-      console.log(value);
     };
 
     const tasks = useSelector(selectTasks);
-    // React.useEffect(()=>{
-    //     console.log(tasks);
-    // },[]);
 
   return (
     <div style={{width: '100%' }}>
@@ -136,7 +150,6 @@ export default function DataTable() {
         onCellClick={(params) =>{handleClickOpen(params)}}
       />
     <SimpleDialog
-        selectedValue={selectedValue}
         open={open}
         onClose={handleClose}
       />

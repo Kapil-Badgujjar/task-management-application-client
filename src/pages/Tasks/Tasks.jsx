@@ -19,9 +19,10 @@ import Select from '@mui/material/Select';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTasks, selectTasks } from '../../features/taskSlice/taskSlice';
+import { getLastTask} from '../../features/taskSlice/taskSlice';
+import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, showError, removeError } from '../../features/adminSlice/adminSlice';
+import { selectUser } from '../../features/userSlice/userSlice';
 import Table from '../../components/Table';
-import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, removeError } from '../../features/adminSlice/adminSlice';
 
 // function to get next day date for default date in create new task
 function getDate() {
@@ -37,25 +38,8 @@ function getDate() {
 function SimpleDialog(props) {
   const dispatch = useDispatch();
   
-  const { onClose, selectedValue, open } = props;
-  
-    // Function called when click outside of dialog box
-    const handleClose = () => {
-      onClose();
-    };
-  
-    // Function called on submit button
-    const handleSubmit = (value) => {
-      // Dispatch addTask to add new task
-      dispatch(addTask());
-    };
-  
-    // MUI theme
-    const theme = useTheme();
-    // MUI response media queries
-    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  
-    
+  const { onClose, open } = props;
+
     // Select tasks
     const task = useSelector(selectTask);
 
@@ -65,6 +49,31 @@ function SimpleDialog(props) {
     // Select Error from adminSlice
     const error = useSelector(selectError);
 
+    // Function called when click outside of dialog box
+    const handleClose = () => {
+      onClose();
+    };
+  
+    // Function called on submit button
+    const handleSubmit = (value) => {
+
+      if(!task.title||!task.description||!task.assignedTo||!task.deadline||!task.tags){
+        setTimeout(() => dispatch(removeError()), 2000);
+        dispatch(showError("Required values can't be empty!"));
+        return;
+      }
+      // requesting the server to get last added task
+      setTimeout(()=>dispatch(getLastTask()),250);
+      // Dispatch addTask to add new task
+      dispatch(addTask());
+      onClose();
+    };
+  
+    // MUI theme
+    const theme = useTheme();
+    // MUI response media queries
+    const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  
     // useEffect called when error changes
     useEffect(()=>{
       // Dispatch remove Error after 2 seconds to remove the error
@@ -72,6 +81,9 @@ function SimpleDialog(props) {
     },[error]);
 
 
+      useEffect(()=>{
+        dispatch(setDeadline(getDate()));
+      },[]);
     return (
       <Dialog
           fullScreen={fullScreen}
@@ -96,7 +108,7 @@ function SimpleDialog(props) {
                           {users.map(user => <MenuItem key={user.id} value={user.id}>{user.username}</MenuItem>)}
                         </Select>
                       </FormControl>
-                    <TextField id="tag" label="Tag" variant="standard" value={task.tags ? task.tags: ''} onChange={(e) => { dispatch(setTags(e.target.value))}}/>
+                    <TextField id="tag" label="*Tag" variant="standard" value={task.tags ? task.tags: ''} onChange={(e) => { dispatch(setTags(e.target.value))}}/>
                     <TextField
                         sx={{mt: 2}}
                         id="outlined-multiline-static"
@@ -115,17 +127,15 @@ function SimpleDialog(props) {
 SimpleDialog.propTypes = {
     onClose: PropTypes.func.isRequired,
     open: PropTypes.bool.isRequired,
-    selectedValue: PropTypes.string.isRequired,
   };
 
 export default function Tasks() {
+    const user = useSelector(selectUser);
 
     // *Please note - thesse useStates are used by MUI Components
     const [open, setOpen] = React.useState(false);
-    const [selectedValue, setSelectedValue] = React.useState('');
     
     const handleClickOpen = () => {
-        // setSelectedValue('');
         setOpen(true);
     };
     
@@ -150,13 +160,12 @@ export default function Tasks() {
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                     Tasks
                 </Typography>
-                <Button variant="outlined" sx={{outline: '1px solid white', color: 'white'}} onClick={()=>{handleClickOpen()}}>+ &nbsp;&nbsp;Create new</Button>
+                {user.role === 'Admin' && <Button variant="outlined" sx={{outline: '1px solid white', color: 'white'}} onClick={()=>{handleClickOpen()}}>+ &nbsp;&nbsp;Create new</Button>}
                 </Toolbar>
             </AppBar>
         </Box>
         <Table />
         <SimpleDialog
-            selectedValue={selectedValue}
             open={open}
             onClose={handleClose}
         />
