@@ -6,6 +6,12 @@
 .commentslist::-webkit-scrollbar {
     display: none;
 }
+.comments{
+    margin-bottom: 5px;
+}
+.comments>h4 {
+    color:rgb(1, 90, 192);
+}
 @media screen and (min-width: 640px) {
     .datagrid{
         height: calc(100vh - 64px) !important;

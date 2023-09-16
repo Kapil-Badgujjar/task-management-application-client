@@ -19,8 +19,8 @@ import Select from '@mui/material/Select';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
-import { getLastTask} from '../../features/taskSlice/taskSlice';
-import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, showError, removeError } from '../../features/adminSlice/adminSlice';
+import { getLastTask, getTasks, taskSlice_updateStatus, taskSlice_updateTask} from '../../features/taskSlice/taskSlice';
+import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, showError, removeError, selectStatus } from '../../features/adminSlice/adminSlice';
 import { selectUser } from '../../features/userSlice/userSlice';
 import Table from '../../components/Table';
 
@@ -39,6 +39,8 @@ function SimpleDialog(props) {
   const dispatch = useDispatch();
   
   const { onClose, open } = props;
+    // Select User
+    const user = useSelector(selectUser);
 
     // Select tasks
     const task = useSelector(selectTask);
@@ -48,6 +50,9 @@ function SimpleDialog(props) {
 
     // Select Error from adminSlice
     const error = useSelector(selectError);
+
+    // Select status form adminSlice
+    const status = useSelector(selectStatus);
 
     // Function called when click outside of dialog box
     const handleClose = () => {
@@ -80,10 +85,17 @@ function SimpleDialog(props) {
       setTimeout(()=> dispatch(removeError()),2000);
     },[error]);
 
+    useEffect(()=>{
+      if(status === 'Fullfilled'){
+        if(user?.role == 'Admin') dispatch(taskSlice_updateTask(task));
+        else dispatch(taskSlice_updateStatus(task));
+      }
+    },[status]);
 
-      useEffect(()=>{
-        dispatch(setDeadline(getDate()));
-      },[]);
+    useEffect(()=>{
+      dispatch(setDeadline(getDate()));
+    },[]);
+
     return (
       <Dialog
           fullScreen={fullScreen}

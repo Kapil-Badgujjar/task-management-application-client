@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
+// AsyncThunk to fetch all tasks from server
 const getTasks = createAsyncThunk(
     'fetch/tasks',
-    async(_,thunkAPI) => {
+    async() => {
         const token = localStorage.getItem('albedoAccessToken');
         try{
             const response = await fetch('http://localhost:7171/tasks/fetchtasks',{
@@ -23,9 +24,10 @@ const getTasks = createAsyncThunk(
     }
 )
 
+// AsyncThunk to get last added task from the server
 const getLastTask = createAsyncThunk(
     'fetch/lasttask',
-    async(_,thunkAPI) => {
+    async() => {
         const token = localStorage.getItem('albedoAccessToken');
         try{
             const response = await fetch('http://localhost:7171/tasks/fetchlasttasks',{
@@ -46,17 +48,40 @@ const getLastTask = createAsyncThunk(
     }
 )
 
+// Initial state of our slice
 const initialState = {
     taskList: [],
     status: 'idle',
     error: null,
 }
 
+// Creating slice
 const tasks = createSlice({
     name: 'tasks',
     initialState,
     reducers: {
-        
+        taskSlice_updateTask: (state, action) => {
+            console.log(action.payload);
+            state.taskList.map(task => {
+                if(task.id === action.payload.id){
+                    task.title = action.payload.title,
+                    task.description = action.payload.description,
+                    task.status = action.payload.status,
+                    task.tag = action.payload.tags,
+                    task.deadline = action.payload.deadline
+                }
+                return task;
+            })
+        },
+        taskSlice_updateStatus: (state, action) => {
+            console.log(action.payload);
+            state.taskList.map(task => {
+                if(task.id === action.payload.id){
+                    task.status = action.payload.status
+                }
+                return task;
+            })
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(getTasks.pending, (state, action)=>{
@@ -86,6 +111,6 @@ export {getTasks, getLastTask};
 
 export const selectTasks = (state) => state.tasks.taskList;
 
-export const {} = tasks.actions;
+export const { taskSlice_updateTask, taskSlice_updateStatus } = tasks.actions;
 
 export default tasks.reducer;

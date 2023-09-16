@@ -26,16 +26,15 @@ const style = {
 
 
 export default function Home() {
+    // Use state used by MUI component
+    const [value, setValue] = React.useState('recents');
+    
+    // Select current user
+    const user = useSelector(selectUser);
+    
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
-  const dispatch = useDispatch();
-    useEffect(() => {
-        dispatch(getUsers());
-        dispatch(getTasks());
-    },[]);
-
-  const [value, setValue] = React.useState('recents');
-  const user = useSelector(selectUser);
-  const navigate = useNavigate();
   const handleChange = (event, newValue) => {
     setValue(newValue);
     switch(newValue){
@@ -45,6 +44,12 @@ export default function Home() {
         case 'profile': navigate('/profile'); return;
     }
   };
+  useEffect(() => {
+    if(user?.id){
+        dispatch(getUsers());
+        dispatch(getTasks());
+    }
+    },[user]); 
 
   return (
     <div className={styles.home}>

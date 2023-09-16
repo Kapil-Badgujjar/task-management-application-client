@@ -2,20 +2,23 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const getComments = createAsyncThunk(
     'getComments',
-    async(_,thunkAPI) => {
+    async(data,thunkAPI) => {
         try{
-            const response = await fetch('http://localhost:7171/comments/getcomments', {
+            const taskid = data;
+            const response = await fetch(`http://localhost:7171/comments/getcomments/${taskid}`, {
                 credentials: 'include',
                 method: 'GET',
                 mode: 'cors',
-                Headers: { 
+                headers: { 
                     'Content-Type': 'application/json',
                     'authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken'),
                 }
             }).then(response =>{if(response.status == 200) return response.json();});
             console.log(response);
+            return response;
         } catch( error ) {
             console.log( error );
+            throw error;
         }
     }
 )
@@ -35,8 +38,10 @@ const saveComment = createAsyncThunk(
                 body: JSON.stringify({id, comment})
             })
             console.log(response);
+            // return response;
         } catch (error) {
             console.log( error );
+            // throw error;
         }
     }
 )
@@ -61,6 +66,17 @@ const commentsSlice = createSlice({
         }
     },
     extraReducers: (builder) =>{
+        builder.addCase(getComments.pending, (state, action) => {
+            state.status = 'loading';
+        })
+        .addCase(getComments.fulfilled, (state, action) => {
+            state.comments = action.payload;
+            state.status = 'Success';
+        })
+        .addCase(getComments.rejected, (state, action) => {
+            state.status = 'Rejected';
+            state.error = action.error.message;
+        })
 
     }
 });

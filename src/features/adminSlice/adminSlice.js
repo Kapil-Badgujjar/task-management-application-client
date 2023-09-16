@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
+// AsyncThunk to get users from server
 const getUsers = createAsyncThunk(
     'getUsers',
     async () => {
@@ -21,12 +22,30 @@ const getUsers = createAsyncThunk(
     }
 )
 
-const updateUser = createAsyncThunk(
+// To update user role
+const updateUserRole = createAsyncThunk(
     'updateUser',
     async(data, thunkAPI) => {
+        try {
+            const response = await fetch('http://localhost:7171/users/updateuserrole',{
+                credentials: 'include',
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
+                },
+                body: JSON.stringify({id:data.id , role:data.role })
+            }).then(response => response.status == 200 && response.json());
+            if(response.message === 'Success') return {id: data.id, role: data.role};
+            else throw new Error('Error occured');
+        } catch (err) {
+            throw err;
+        };
     }
 )
     
+// To add new task
 const addTask = createAsyncThunk(
     'addTask',
     async (_, thunkAPI) => {
@@ -53,6 +72,7 @@ const addTask = createAsyncThunk(
     }
 )
 
+// To update task
 const updateTask = createAsyncThunk(
     'updateTask',
     async (_, thunkAPI) => {
@@ -73,6 +93,7 @@ const updateTask = createAsyncThunk(
                 body: JSON.stringify({id, title, deadline, assignedTo, tags, description, status })
             }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Failed to add task!')});
             console.log(response)
+            return response;
         } catch (error) {
             console.log(error);
             throw new Error(error.message);
@@ -80,6 +101,7 @@ const updateTask = createAsyncThunk(
     }
 )
 
+// To update status
 const updateStatus = createAsyncThunk(
     'updateStatus',
     async (_, thunkAPI) => {
@@ -107,7 +129,7 @@ const updateStatus = createAsyncThunk(
     }
 )
 
-
+// Initial state of the admin slice
 const initialState = {
     users: [],
     task: {
@@ -158,7 +180,7 @@ const adminSlice = createSlice({
                 title: action.payload.title,
                 deadline: action.payload.deadline.slice(0,10),
                 assignedTo: action.payload.assignedTo,
-                tags: action.payload.tag,
+                tags: action.payload.tags,
                 description: action.payload.description,
                 status: action.payload.status,
             };
@@ -187,6 +209,19 @@ const adminSlice = createSlice({
             state.status = 'failed';
             state.users = [];
         })
+        .addCase(updateUserRole.pending, (state, action) => {
+            state.status = 'Loading';
+        })
+        .addCase(updateUserRole.fulfilled, (state, action) => {
+            state.users.map( user=> {
+                if(user.id === action.payload.id) user.role = action.payload.role;
+                return user;
+            })
+            state.status = 'success';
+        })
+        .addCase(updateUserRole.rejected, (state, action) => {
+            state.status = 'failed';
+        })
         .addCase(addTask.pending, (state, action) => {
             state.status = 'Loading';
         })
@@ -206,14 +241,35 @@ const adminSlice = createSlice({
             state.error = action.error.message;
             state.status = 'Failed';
         })
+        .addCase(updateTask.pending, (state, action) => {
+            state.status = 'Loading';
+        })
+        .addCase(updateTask.fulfilled, (state, action) => {
+            state.status = 'Fullfilled';
+        })
+        .addCase(updateTask.rejected, (state, action) => {
+            state.error = action.error.message;
+            state.status = 'Failed';
+        })
+        .addCase(updateStatus.pending, (state, action) => {
+            state.status = 'Loading';
+        })
+        .addCase(updateStatus.fulfilled, (state, action) => {
+            state.status = 'Fullfilled';
+        })
+        .addCase(updateStatus.rejected, (state, action) => {
+            state.error = action.error.message;
+            state.status = 'Failed';
+        })
     }
 })
 
-export { getUsers, addTask, updateTask, updateStatus };
+export { getUsers, updateUserRole, addTask, updateTask, updateStatus };
 
 export const selectUsers = (state) => state.admin.users;
 export const selectTask = (state) => state.admin.task;
 export const selectError = (state) => state.admin.error;
+export const selectStatus = (state) => state.admin.status;
 
 export const { setTitle, setDeadline, setAssignedTo, setTags, setDescription, setStatus, showError, removeError, setTask, resetTask } = adminSlice.actions;
 

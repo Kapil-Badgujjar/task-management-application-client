@@ -1,13 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
-import userSlice from '../features/userSlice/userSlice';
-import taskSlice from '../features/taskSlice/taskSlice';
-import adminSlice from '../features/adminSlice/adminSlice';
-import commentSlice from '../features/commentsSlice/commentsSlice';
+import userReducer from '../features/userSlice/userSlice';
+import taskReduceer from '../features/taskSlice/taskSlice';
+import adminReducer from '../features/adminSlice/adminSlice';
+import commentReducer from '../features/commentsSlice/commentsSlice';
+import dashboardReducer from '../features/dashboardSlice/dashboardSlice';
+
 export const store = configureStore({
     reducer: {
-        user: userSlice,
-        tasks: taskSlice,
-        admin: adminSlice,
-        comment: commentSlice,
+        user: userReducer,
+        tasks: taskReduceer,
+        admin: adminReducer,
+        comment: commentReducer,
+        dashboard: dashboardReducer
     }
 })

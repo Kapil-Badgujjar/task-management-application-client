@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Dashboard.module.css';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -6,8 +6,17 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import { useDispatch, useSelector } from 'react-redux';
+import { getStats, selectStats } from '../../features/dashboardSlice/dashboardSlice';
+import { Paper } from '@mui/material';
+import { Chart } from "react-google-charts";
 
 export default function Dashboard() {
+    const dispatch = useDispatch();
+    const data = useSelector(selectStats);
+    useEffect(()=>{
+        dispatch(getStats());
+    },[]);
   return (
     <div className={styles.dashboard}>
         <Box sx={{ flexGrow: 1 }}>
@@ -28,6 +37,19 @@ export default function Dashboard() {
                 </Toolbar>
             </AppBar>
         </Box>
+        <Typography variant="h3" component="div" sx={{ flexGrow: 1, m: 2 }} className={styles.chartHeading}>Task Statistics</Typography> 
+            <Chart
+            chartType="PieChart"
+            data={data}
+            options={{
+                title: "",
+                is3D: true
+              }}
+            width={"100%"}
+            height={"600px"}
+        />
+        <br/>
+        <hr/>
     </div>
   )
 }

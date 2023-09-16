@@ -12,10 +12,11 @@ import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { Button } from '@mui/material';
 import { selectUser } from '../features/userSlice/userSlice';
-import { setTitle, setDeadline, setTags, setDescription, selectTask, setTask, updateTask, setStatus, resetTask, updateStatus } from '../features/adminSlice/adminSlice';
-import { setId, saveComment, selectComment, writeComment } from '../features/commentsSlice/commentsSlice';
+import { setTitle, setDeadline, setTags, setDescription, selectTask, setTask, updateTask, setStatus, resetTask, updateStatus, showError, removeError, selectError } from '../features/adminSlice/adminSlice';
+import { setId, saveComment, selectComment, writeComment, getComments, selectComments } from '../features/commentsSlice/commentsSlice';
 
 // function to get next day date for default date in create new task
 function getDate() {
@@ -32,17 +33,33 @@ function SimpleDialog(props) {
   const dispatch = useDispatch();
   const { onClose, open } = props;
   
+  // Select values from adminSlice
   const user = useSelector(selectUser);
   const task = useSelector(selectTask)
+  const error = useSelector(selectError);
+  
+  // Select comment from commentsSlice 
   const comment = useSelector(selectComment);
 
+  // select comments to show
+  const comments = useSelector(selectComments);
+
+  // Dialog box close handler
   const handleClose = () => {
     dispatch(resetTask());
     onClose();
   };
 
+  // Submit function
   const handleSubmit = () => {
-    if(user?.role === 'Admin') dispatch(updateTask());
+    if(user?.role === 'Admin') { 
+      if(!task.title||!task.deadline||!task.description||!task.tags||!task.status){
+        setTimeout(function(){ dispatch(removeError()); }, 2000);
+        dispatch(showError("Required fields cannot be empty!"));
+        return;
+      }
+      dispatch(updateTask());
+    }
     else dispatch(updateStatus());
     dispatch(saveComment());
     onClose();
@@ -59,6 +76,7 @@ function SimpleDialog(props) {
             <div style={{display: 'flex', gap:'10px'}}>
                 <div>
                     <DialogTitle >{user?.role === 'Admin' ? 'Update task' : 'Update status'}</DialogTitle>
+                        {error && <Alert sx={{mx: 3, mb: 2 }} severity="error">{error}</Alert>}
                         {user?.role === 'Admin' && 
                         <>
                          <TextField sx={{mx: 3, mb: 2 }} id="title" label="*Title" value={task.title ? task.title: ''} onChange={(e) => { dispatch(setTitle(e.target.value))}}/>
@@ -92,7 +110,12 @@ function SimpleDialog(props) {
                     />
                     <DialogTitle sx={{mr: 3}} >Comments</DialogTitle>
                     <div className={styles.commentslist}>
-
+                         {comments.map(item => 
+                          <div className={styles.comments} key={item.id+'c'}>
+                            <h4>{item.username}</h4>
+                            <p>{item.comment}</p>
+                          </div>
+                          )}
                     </div>
                 </div>
             </div>
@@ -111,8 +134,9 @@ const columns = [
   { field: 'id', headerName: 'ID', width: 120 },
   { field: 'title', headerName: 'Title', width: 150 },
   { field: 'status', headerName: 'Status', width: 150 },
+  { field: 'username', headerName: 'Assigned To', width: 200},
   { field: 'deadline', headerName: 'Deadline', width: 250 },
-  { field: 'tag', headerName: 'Tag', width: 200 },
+  { field: 'tags', headerName: 'Tags', width: 200 },
   { field: 'description', headerName: 'Description', width: 350 },
 ];
 
@@ -125,6 +149,7 @@ export default function DataTable() {
     const handleClickOpen = (params) => {
       dispatch(setTask(params.row));
       dispatch(setId(params.row.id));
+      dispatch(getComments(params.row.id));
       setOpen(true);
     };
   
