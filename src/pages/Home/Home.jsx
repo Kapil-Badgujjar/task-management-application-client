@@ -35,20 +35,23 @@ export default function Home() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-    switch(newValue){
-        case 'dashboard': navigate('/dashboard'); return;
-        case 'tasks': navigate('/tasks'); return;
-        case 'users': navigate('/users'); return;
-        case 'profile': navigate('/profile'); return;
-    }
-  };
-  useEffect(() => {
-    if(user?.id){
-        dispatch(getUsers());
-        dispatch(getTasks());
-    }
+    // Handle route changes
+    const handleChange = (event, newValue) => {
+        setValue(newValue);
+        // Routing based on newValue(Route)/Navigate to different routes based on the newValue
+        switch(newValue){
+            case 'dashboard': navigate('/dashboard'); return;
+            case 'tasks': navigate('/tasks'); return;
+            case 'users': navigate('/users'); return;
+            case 'profile': navigate('/profile'); return;
+        }
+    };
+    useEffect(() => {
+        if(user?.id){
+            // Get users and task details if user logged in
+            dispatch(getUsers());
+            dispatch(getTasks());
+        }
     },[user]); 
 
   return (

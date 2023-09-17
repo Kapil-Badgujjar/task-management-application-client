@@ -4,6 +4,7 @@ import taskReduceer from '../features/taskSlice/taskSlice';
 import adminReducer from '../features/adminSlice/adminSlice';
 import commentReducer from '../features/commentsSlice/commentsSlice';
 import dashboardReducer from '../features/dashboardSlice/dashboardSlice';
+import signupReducer from '../features/SignupSlice/signupSlice';
 
 export const store = configureStore({
     reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
         tasks: taskReduceer,
         admin: adminReducer,
         comment: commentReducer,
-        dashboard: dashboardReducer
+        dashboard: dashboardReducer,
+        signup: signupReducer
     }
 })

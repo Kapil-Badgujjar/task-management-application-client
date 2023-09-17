@@ -8,13 +8,13 @@ import IconButton from '@mui/material/IconButton';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import { useDispatch, useSelector } from 'react-redux';
 import { getStats, selectStats } from '../../features/dashboardSlice/dashboardSlice';
-import { Paper } from '@mui/material';
 import { Chart } from "react-google-charts";
 
 export default function Dashboard() {
     const dispatch = useDispatch();
     const data = useSelector(selectStats);
     useEffect(()=>{
+        // Get statistics for tasks
         dispatch(getStats());
     },[]);
   return (

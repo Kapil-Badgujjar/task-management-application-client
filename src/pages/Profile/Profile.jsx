@@ -1,16 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styles from './Profile.module.css';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import Alert from '@mui/material/Alert';
 import IconButton from '@mui/material/IconButton';
 import ManageAccounts from '@mui/icons-material/ManageAccounts';
 import Container from '@mui/material/Container';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectUser, logout } from '../../features/userSlice/userSlice';
+import { selectUser, logout, setUpdateUsername, setUpdateEmail, updateDetails, selectUpdate, removeError, selectLoginError } from '../../features/userSlice/userSlice';
 import { Link } from '@mui/material';
 import { Outlet, useNavigate } from 'react-router-dom';
 
@@ -18,6 +19,14 @@ export default function Profile() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector(selectUser);
+    const update = useSelector(selectUpdate);
+    const error = useSelector(selectLoginError);
+
+    useEffect(()=>{
+        setTimeout(()=>{
+            dispatch(removeError())
+        },2000);
+    },[error])
   return (
     <div className={styles.profile}>
             <Box sx={{ flexGrow: 1}}>
@@ -48,10 +57,11 @@ export default function Profile() {
                 {user.email_id}
             </Typography>
             <hr/>
-            <TextField label="Username" variant='outlined' value={user.username}/>
-            <TextField label="Email" variant='outlined' value={user.email_id}/>
+            {error && <Alert severity="error">{error}</Alert>}
+            <TextField label="Username" variant='outlined' value={update.username ? update.username: user.username} onChange={(e)=>{dispatch(setUpdateUsername(e.target.value))}}/>
+            <TextField label="Email" variant='outlined' value={update.email ? update.email: user.email_id} onChange={(e)=>{dispatch(setUpdateEmail(e.target.value))}} />
             <TextField label="Role" variant='outlined' value={user.role} disabled/>
-            <Button variant='outlined'>Update</Button>
+            <Button variant='outlined' onClick={()=>{dispatch(updateDetails())}}>Update</Button>
             <div>
             <Outlet />
             <Link component="button" underline="always" onClick={()=>{ window.location.pathname === '/profile/passwordupdate' ? navigate('/profile') : navigate('passwordupdate')}}>

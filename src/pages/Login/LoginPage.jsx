@@ -23,7 +23,7 @@ export default function LoginPage() {
     dispatch(loginUser());
   }
   useEffect(()=>{
-    setTimeout(()=>{dispatch(removeError())},2000);
+    setTimeout(()=>{dispatch(removeError())},3000);
   },[error]);
   useEffect(() => {
     if(user?.id){
@@ -44,18 +44,14 @@ export default function LoginPage() {
                 {error && <Alert severity="error">{error}</Alert>}
                 <TextField color="primary" id="email" label="Email" variant="outlined" type="email" value={user.email_id ? user.email_id: ''} onChange={(e)=>{dispatch(setEmailValue(e.target.value))}}/>
                 <TextField color="primary" id="password" label="Password" variant="outlined" type="password" value={user.password ? user.password: ''} onChange={(e)=>{dispatch(setPasswordValue(e.target.value))}}/>
-                <Button color="primary" variant="contained" onClick={e=>handleSubmit(e)}>Login</Button>
-                <Link
-                className={styles.links}
-                  component="button"
+                <Link className={styles.links}
+                  component="div"
                   variant="body2"
                   onClick={(e) => {
-                    e.preventDefault();
-                    console.info("I'm a button.");
-                  }}
-                >
-                 Forgot Password
-                </Link>
+                    e.preventDefault(); 
+                    handleSubmit(e)}}>
+                      <Button color="primary" variant="contained">Login</Button>
+                    </Link>
                 <div >
                 Don't have an account?&nbsp;&nbsp;
                 <Link
@@ -64,7 +60,7 @@ export default function LoginPage() {
                   sx={{cursor: 'pointer'}}
                   onClick={(e) => {
                     e.preventDefault();
-                    console.info("I'm a button.");
+                    navigate('/register');
                   }}
                 >
                  Register now
