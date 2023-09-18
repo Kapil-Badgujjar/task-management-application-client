@@ -1,20 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchGetRequest } from '../../utility/fetchAPICalls';
 
 const getStats = createAsyncThunk(
     'getStats',
     async() => {
         try {
-            const response = await fetch('http://localhost:7171/tasks/getStats',{
-                credentials: 'include',
-                method: 'GET',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                }
-            }).then(response => response.status === 200 && response.json());
-            console.log(response);
-            return response;
+            return await fetchGetRequest('/tasks/getstats');
         } catch(error) {
             throw error;
         }
@@ -30,9 +21,6 @@ const initialState = {
 const dashboardSlice = createSlice({
     name: 'dashboard',
     initialState,
-    reducers: {
-
-    },
     extraReducers: (builder) => {
         builder.addCase(getStats.pending, (state, action) => {
             state.status = 'Loading'
@@ -52,7 +40,5 @@ export { getStats };
 
 export const selectStats = state => state.dashboard.stats;
 export const selectError = state => state.dashboard.error;
-
-export const {} = dashboardSlice.actions;
 
 export default dashboardSlice.reducer;

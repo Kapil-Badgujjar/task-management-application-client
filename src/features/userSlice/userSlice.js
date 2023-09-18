@@ -1,7 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchPostRequest } from "../../utility/fetchAPICalls";
+import { fetchPostRequest, fetchGetRequest } from "../../utility/fetchAPICalls";
 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+const getUserDetails = createAsyncThunk(
+    'getUser/user',
+    async function (_,thunckAPI) {
+        try {
+            return await fetchGetRequest('/getuserDetails');
+        } catch ( error ) {
+            throw error;
+        }
+    }
+)
 
 const loginUser = createAsyncThunk(
     'login/user',
@@ -73,6 +84,7 @@ const userSlice = createSlice({
             state.user.password = action.payload;
         },
         logout: (state, action) => {
+            localStorage.removeItem('albedoAccessToken');
             state.user = initialState;
         },
         removeError: (state, action) => {
@@ -92,7 +104,18 @@ const userSlice = createSlice({
         }
     },
     extraReducers: (builder) =>{
-        builder.addCase(loginUser.pending,(state, action)=>{
+        builder.addCase(getUserDetails.pending, (state, action) => {
+            state.status = 'loading';
+        })
+        .addCase(getUserDetails.fulfilled, (state, action) => {
+            state.user = action.payload;
+            state.status = 'Successful';
+        })
+        .addCase(getUserDetails.rejected, (state, action) => {
+            state.error = action.error.message;
+            state.status = 'failed';
+        })
+        .addCase(loginUser.pending,(state, action)=>{
             state.status = 'pending';
         })
         .addCase(loginUser.fulfilled,(state, action)=>{
@@ -146,7 +169,7 @@ const userSlice = createSlice({
     }
 })
 
-export { loginUser, updateDetails, updatePassword };
+export { getUserDetails, loginUser, updateDetails, updatePassword };
 
 export const selectUser = (state) => state.user.user;
 export const selectUpdate = (state) => state.user.update;

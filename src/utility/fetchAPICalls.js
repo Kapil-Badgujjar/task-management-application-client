@@ -6,7 +6,6 @@ async function fetchGetRequest(endpoint){
             mode: 'cors',
             headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')},
         }).then(response => response.status === 200 && response.json()).catch(error => {throw error});
-        console.log(responseData);
         if(!responseData) throw Error('Empty Response');
         if(responseData.token) localStorage.setItem('albedoAccessToken', responseData.token);
         return responseData.data;
@@ -24,7 +23,6 @@ async function fetchPostRequest(endpoint, bodyData){
             headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')},
             body: JSON.stringify(bodyData)
         }).then(response => response.status === 200 && response.json()).catch(error => {throw error});
-        console.log(responseData);
         if(!responseData) throw Error('Empty Response');
         if(responseData.token) localStorage.setItem('albedoAccessToken', responseData.token);
         return responseData.data;

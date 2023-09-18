@@ -17,6 +17,7 @@ export default function Dashboard() {
         // Get statistics for tasks
         dispatch(getStats());
     },[]);
+
   return (
     <div className={styles.dashboard}>
         <Box sx={{ flexGrow: 1 }}>
@@ -38,18 +39,20 @@ export default function Dashboard() {
             </AppBar>
         </Box>
         <Typography variant="h3" component="div" sx={{ flexGrow: 1, m: 2 }} className={styles.chartHeading}>Task Statistics</Typography> 
-            <Chart
-            chartType="PieChart"
-            data={data}
-            options={{
-                title: "",
-                is3D: true
-              }}
-            width={"100%"}
-            height={"600px"}
-        />
-        <br/>
-        <hr/>
+         <div className={styles.chartContainer}>
+            {data?.length > 0 && <Chart
+                chartType="PieChart"
+                data={data}
+                options={{
+                    title: "",
+                    is3D: true
+                }}
+                width={"100%"}
+                height={window.innerHeight/1.5}
+            /> }
+            <br/>
+            <hr/>
+        </div>               
     </div>
   )
 }

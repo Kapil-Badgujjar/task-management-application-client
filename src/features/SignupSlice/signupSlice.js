@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchPostRequest } from '../../utility/fetchAPICalls';
 
 const register = createAsyncThunk(
     'register',
@@ -12,18 +13,10 @@ const register = createAsyncThunk(
             if(!emailPattern.test(email))  throw new Error("Invalid email");
             const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
             if(!pattern.test(password)) throw new Error('Create strong password *(AZaz09!#$@)')
-            const response = await fetch('http://localhost:7171/users/signup', {
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({username, email, password})
-            }).then( response => response.status === 200 && response.json());
-            if(!response) throw new Error('User already exists');
+            const response = await fetchPostRequest('/users/signup',{username, email, password});
             return response;
         } catch (error) {
+            console.log(error);
             throw error;
         }
     }

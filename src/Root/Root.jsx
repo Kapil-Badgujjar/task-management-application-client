@@ -10,8 +10,8 @@ export default function Root() {
 
     useEffect(()=>{
         // If user not logged in navigate to login page
-        if(!user.id){
-            navigate('/login');
+        if(!user?.id){
+          navigate('/login');
         }
     },[]);
   return (

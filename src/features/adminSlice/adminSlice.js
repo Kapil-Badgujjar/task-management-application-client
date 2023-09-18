@@ -1,21 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchGetRequest, fetchPostRequest } from "../../utility/fetchAPICalls";
 
 // AsyncThunk to get users from server
 const getUsers = createAsyncThunk(
     'getUsers',
     async () => {
         try {
-            console.log('getusers called!');
-            const response =  await fetch('http://localhost:7171/users/fetchallusers', {
-                credentials: 'include',
-                method: 'GET',
-                mode: 'cors',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                },
-            }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Invalid - Check Email/Password again!')});
-            return response;
+            return await fetchGetRequest('/users/fetchallusers');
         } catch (error) {
             throw new Error(error.message);
         }
@@ -25,20 +16,9 @@ const getUsers = createAsyncThunk(
 // To update user role
 const updateUserRole = createAsyncThunk(
     'updateUser',
-    async(data, thunkAPI) => {
+    async(data) => {
         try {
-            const response = await fetch('http://localhost:7171/users/updateuserrole',{
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                },
-                body: JSON.stringify({id:data.id , role:data.role })
-            }).then(response => response.status == 200 && response.json());
-            if(response.message === 'Success') return {id: data.id, role: data.role};
-            else throw new Error('Error occured');
+            return await fetchPostRequest('/users/updateuserrole',{id: data.id, role: data.role});
         } catch (err) {
             throw err;
         };
@@ -51,21 +31,8 @@ const addTask = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const { title, deadline,  assignedTo, tags, description } = thunkAPI.getState().admin.task;
-            if(!title||!deadline||!assignedTo||!tags||!description) {
-                throw  new Error("Required valeus can't be empty");
-            }
-            console.log(title, deadline, assignedTo, tags, description);
-            const response =  await fetch('http://localhost:7171/tasks/addnewtask', {
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                 },
-                body: JSON.stringify({ title, deadline, assignedTo, tags, description })
-            }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Failed to add task!')});
-            return response;
+            if(!title||!deadline||!assignedTo||!tags||!description) throw  new Error("Required valeus can't be empty");
+            return await fetchPostRequest('/tasks/addnewtask', {title,deadline,assignedTo,tags,description});
         } catch (error) {
             throw new Error(error.message);
         }
@@ -78,24 +45,9 @@ const updateTask = createAsyncThunk(
     async (_, thunkAPI) => {
         try {
             const {id, title, deadline,  assignedTo, tags, description, status } = thunkAPI.getState().admin.task;
-            if(!id||!title||!deadline||!tags||!description) {
-                throw  new Error("Required valeus can't be empty");
-            }
-            console.log(title, deadline, tags, description);
-            const response =  await fetch('http://localhost:7171/tasks/updatetask', {
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                 },
-                body: JSON.stringify({id, title, deadline, assignedTo, tags, description, status })
-            }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Failed to add task!')});
-            console.log(response)
-            return response;
+            if(!id||!title||!deadline||!tags||!description) throw  new Error("Required valeus can't be empty");
+            return await fetchPostRequest('/tasks/updatetask',{id, title, deadline,  assignedTo, tags, description, status });
         } catch (error) {
-            console.log(error);
             throw new Error(error.message);
         }
     }
@@ -110,20 +62,8 @@ const updateStatus = createAsyncThunk(
             if(!id||!status) {
                 throw  new Error("Required valeus can't be empty");
             }
-            console.log(id, status);
-            const response =  await fetch('http://localhost:7171/tasks/updatetaskstatus', {
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                 },
-                body: JSON.stringify({id, status })
-            }).then(response =>{ if(response.status === 200) return response.json(); else throw new Error('Failed to add task!')});
-            console.log(response)
+            return await fetchPostRequest('/tasks/updatetaskstatus',{ id, status });
         } catch (error) {
-            console.log(error);
             throw new Error(error.message);
         }
     }
@@ -189,7 +129,6 @@ const adminSlice = createSlice({
             state.task = {
                 id: undefined,
                 title: undefined,
-                deadline: undefined,
                 assignedTo: undefined,
                 tags: undefined,
                 description: undefined,
@@ -229,7 +168,6 @@ const adminSlice = createSlice({
             state.task = {
                 id: undefined,
                 title: undefined,
-                deadline: undefined,
                 assignedTo: undefined,
                 tags: undefined,
                 description: undefined,

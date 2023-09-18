@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styles from './Home.module.css';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
@@ -13,10 +13,8 @@ import Dashboard from '@mui/icons-material/Dashboard';
 import Task from '@mui/icons-material/Task';
 import Person from '@mui/icons-material/Person';
 import ManageAccounts from '@mui/icons-material/ManageAccounts';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { selectUser } from '../../features/userSlice/userSlice';
-import { getUsers } from '../../features/adminSlice/adminSlice';
-import { getTasks } from '../../features/taskSlice/taskSlice';
 
 const style = {
   width: '100%',
@@ -33,7 +31,6 @@ export default function Home() {
     const user = useSelector(selectUser);
     
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     // Handle route changes
     const handleChange = (event, newValue) => {
@@ -46,15 +43,8 @@ export default function Home() {
             case 'profile': navigate('/profile'); return;
         }
     };
-    useEffect(() => {
-        if(user?.id){
-            // Get users and task details if user logged in
-            dispatch(getUsers());
-            dispatch(getTasks());
-        }
-    },[user]); 
 
-  return (
+    return (
     <div className={styles.home}>
             <Box
             className={styles.leftSide}

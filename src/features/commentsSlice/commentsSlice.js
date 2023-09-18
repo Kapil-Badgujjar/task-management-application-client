@@ -1,21 +1,12 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { fetchGetRequest, fetchPostRequest } from "../../utility/fetchAPICalls";
 
 const getComments = createAsyncThunk(
     'getComments',
-    async(data,thunkAPI) => {
+    async(data) => {
         try{
             const taskid = data;
-            const response = await fetch(`http://localhost:7171/comments/getcomments/${taskid}`, {
-                credentials: 'include',
-                method: 'GET',
-                mode: 'cors',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken'),
-                }
-            }).then(response =>{if(response.status == 200) return response.json();});
-            console.log(response);
-            return response;
+            return await fetchGetRequest(`/comments/getcomments/${taskid}`);
         } catch( error ) {
             console.log( error );
             throw error;
@@ -28,20 +19,9 @@ const saveComment = createAsyncThunk(
     async(_,thunkAPI) => {
         try {
             const { id, comment } = thunkAPI.getState().comment;
-            const response = await fetch('http://localhost:7171/comments/savecomment', {
-                credentials: 'include',
-                method: 'POST',
-                mode: 'cors',
-                headers: { 'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('albedoAccessToken')
-                },
-                body: JSON.stringify({id, comment})
-            })
-            console.log(response);
-            // return response;
+            await fetchPostRequest('/comments/savecomment',{id, comment});
         } catch (error) {
             console.log( error );
-            // throw error;
         }
     }
 )

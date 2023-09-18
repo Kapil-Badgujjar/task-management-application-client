@@ -20,7 +20,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { useDispatch, useSelector } from 'react-redux';
 import { getLastTask, getTasks, taskSlice_updateStatus, taskSlice_updateTask} from '../../features/taskSlice/taskSlice';
-import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, showError, removeError, selectStatus } from '../../features/adminSlice/adminSlice';
+import { selectTask, setTitle, setDeadline, setAssignedTo, setTags, setDescription, addTask, selectUsers, selectError, showError, removeError, selectStatus, getUsers } from '../../features/adminSlice/adminSlice';
 import { selectUser } from '../../features/userSlice/userSlice';
 import Table from '../../components/Table';
 
@@ -61,7 +61,7 @@ function SimpleDialog(props) {
   
     // Function called on submit button
     const handleSubmit = (value) => {
-
+      console.log({task});
       if(!task.title||!task.description||!task.assignedTo||!task.deadline||!task.tags){
         setTimeout(() => dispatch(removeError()), 2000);
         dispatch(showError("Required values can't be empty!"));
@@ -92,9 +92,6 @@ function SimpleDialog(props) {
       }
     },[status]);
 
-    useEffect(()=>{
-      dispatch(setDeadline(getDate()));
-    },[]);
 
     return (
       <Dialog
@@ -132,6 +129,7 @@ function SimpleDialog(props) {
                     />
               </div>
               <Button sx={{mb: 3, mx: 3}} onClick={handleSubmit} variant="contained">Submit</Button>
+              <Button sx={{mb: 3, mx: 3}} variant="outlined" onClick={onClose}>Cancel</Button>
       </Dialog>
     );
   }
@@ -143,17 +141,26 @@ SimpleDialog.propTypes = {
 
 export default function Tasks() {
     const user = useSelector(selectUser);
-
+    const dispatch = useDispatch();
     // *Please note - thesse useStates are used by MUI Components
     const [open, setOpen] = React.useState(false);
     
     const handleClickOpen = () => {
+      dispatch(setDeadline(getDate()));
+      dispatch(getUsers());
         setOpen(true);
     };
     
     const handleClose = () => {
         setOpen(false);
     }
+
+    useEffect(() => {
+        if(user?.id){
+            // Get task details if user logged in
+            dispatch(getTasks());
+        }
+    },[user]); 
 
   return (
     <div className={styles.tasks}>

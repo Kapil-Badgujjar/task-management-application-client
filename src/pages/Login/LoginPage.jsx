@@ -10,8 +10,9 @@ import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import styles from './Login.module.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectUser, selectLoginError, setEmailValue, setPasswordValue, loginUser, removeError } from '../../features/userSlice/userSlice';
+import { selectUser, selectLoginError, setEmailValue, setPasswordValue, loginUser, removeError, getUserDetails } from '../../features/userSlice/userSlice';
 import { useNavigate } from 'react-router-dom';
+import { fetchGetRequest } from '../../utility/fetchAPICalls';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -30,6 +31,9 @@ export default function LoginPage() {
       navigate('/dashboard');
     }
   },[user]);
+  useEffect(() => {
+    dispatch(getUserDetails());
+  },[]);
 
   return (
     <React.Fragment>

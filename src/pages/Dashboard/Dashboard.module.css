@@ -8,6 +8,13 @@
     color:rgb(0, 59, 168);
     border: 1px solid grey;
 }
+.chartContainer{
+    max-height: calc(100vh - 174px);
+    overflow: scroll;
+}
+.chartContainer::-webkit-scrollbar{
+    display: none;
+}
 @media screen and (min-width: 640px) {
     .dashboard{
         width: calc(100vw - 240px);
