@@ -23,7 +23,7 @@ const loginUser = createAsyncThunk(
             if(!pattern.test(password)) throw new Error('Create strong password *(AZaz09!#$@)')
             return await fetchPostRequest('/users/login', {email_id, password});
         } catch (error) {
-            throw new Error(error.message);
+            throw new Error('User Not Found!');
         }
     }
 )

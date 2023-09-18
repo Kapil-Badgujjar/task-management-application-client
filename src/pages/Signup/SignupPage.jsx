@@ -10,18 +10,25 @@ import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import styles from './Signup.module.css';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectSignupUser, selectSignupError, setUsername, setEmail, setPassword, setConfirmPassword, removeError, register } from '../../features/SignupSlice/signupSlice';
+import { selectSignupUser, selectSignupError, setUsername, setEmail, setPassword, setConfirmPassword, removeError, registerUser, selectSignupStatus, setStatus } from '../../features/SignupSlice/signupSlice';
 import { useNavigate } from 'react-router-dom';
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const user = useSelector(selectSignupUser);
+  const status = useSelector(selectSignupStatus);
   const error = useSelector(selectSignupError);
   const dispatch = useDispatch();
   function handleSubmit(event){
     event.preventDefault();
-    dispatch(register());
+    dispatch(registerUser());
   }
+  useEffect(()=> {
+    if(status === 'Successful'){
+      setTimeout(()=>{setStatus(), 100});
+      navigate('/login');
+    }
+  },[status]);
   useEffect(()=>{
     setTimeout(()=>{dispatch(removeError())},2000);
   },[error]);
