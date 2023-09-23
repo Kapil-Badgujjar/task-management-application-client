@@ -20,8 +20,8 @@ const loginUser = createAsyncThunk(
     async (_,thunkAPI)=>{
         try {
             const { email_id, password } = thunkAPI.getState().user.user;
-            if(!email_id) throw new Error('Please enter new email!');
-            if(!password) throw new Error('Please enter new password!');
+            if(!email_id) throw new Error('Please enter email!');
+            if(!password) throw new Error('Please enter password!');
             if(!emailPattern.test(email_id))  throw new Error("Invalid email!");
             if(!pattern.test(password)) throw new Error('Password must contain A capital latter, a small latter, a digit and a special character!');
             return await fetchPostRequest('/users/login', {email_id, password});
