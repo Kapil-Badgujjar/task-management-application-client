@@ -6,16 +6,19 @@ const registerUser = createAsyncThunk(
     async(_,thunkAPI) => {
         try {
             const { username, email, password, confirmPassword } = thunkAPI.getState().signup.user;
-            if(!username || !email || !password || !confirmPassword) throw new Error('Please enter proper values!');
+            if(!username) throw new Error('Enter username!');
+            if(!email) throw new Error('Enter email!');
+            if(!password) throw new Error('Enter password!');
+            if(!confirmPassword) throw new Error('Enter confirm password!');
             if(password !== confirmPassword) throw new Error('Confirm password not matched!');
             const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
             if(!emailPattern.test(email))  throw new Error("Invalid email");
             const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-            if(!pattern.test(password)) throw new Error('Create strong password *(AZaz09!#$@)')
+            if(!pattern.test(password)) throw new Error('Password must contain A capital latter, a small latter, a digit and a special character!');
             return await fetchPostRequest('/users/signup',{username, email, password});
         } catch (error) {
-            console.log(error);
-            throw error;
+            if(error.message === 'Empty Response') throw new Error('Registration Failed!');
+            else throw error;
         }
     }
 )

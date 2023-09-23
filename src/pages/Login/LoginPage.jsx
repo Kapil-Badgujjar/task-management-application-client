@@ -12,7 +12,6 @@ import styles from './Login.module.css';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectUser, selectLoginError, setEmailValue, setPasswordValue, loginUser, removeError, getUserDetails } from '../../features/userSlice/userSlice';
 import { useNavigate } from 'react-router-dom';
-import { fetchGetRequest } from '../../utility/fetchAPICalls';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -32,7 +31,7 @@ export default function LoginPage() {
     }
   },[user]);
   useEffect(() => {
-    dispatch(getUserDetails());
+    if(localStorage.getItem('albedoAccessToken')) dispatch(getUserDetails());
   },[]);
 
   return (
@@ -45,16 +44,19 @@ export default function LoginPage() {
                 <Typography variant="h4" gutterBottom>
                   Login to your account
                 </Typography>
-                {error && <Alert severity="error">{error}</Alert>}
+
                 <TextField color="primary" id="email" label="Email" variant="outlined" type="email" value={user.email_id ? user.email_id: ''} onChange={(e)=>{dispatch(setEmailValue(e.target.value))}}/>
                 <TextField color="primary" id="password" label="Password" variant="outlined" type="password" value={user.password ? user.password: ''} onChange={(e)=>{dispatch(setPasswordValue(e.target.value))}}/>
+                <div className={styles.errorMsg}>
+                  {error && <Alert severity="error">{error}</Alert>}
+                </div>
                 <Link className={styles.links}
                   component="div"
                   variant="body2"
                   onClick={(e) => {
                     e.preventDefault(); 
                     handleSubmit(e)}}>
-                      <Button color="primary" variant="contained">Login</Button>
+                      <Button sx={{ width: '100%'}} color="primary" variant="contained">Login</Button>
                     </Link>
                 <div >
                 Don't have an account?&nbsp;&nbsp;

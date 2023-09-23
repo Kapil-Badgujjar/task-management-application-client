@@ -5,11 +5,12 @@ const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]
 
 const getUserDetails = createAsyncThunk(
     'getUser/user',
-    async function (_,thunckAPI) {
+    async function () {
         try {
             return await fetchGetRequest('/getuserDetails');
         } catch ( error ) {
-            throw error;
+            if(error.message === 'Empty Response') throw new Error('User not found!');
+            else throw error;
         }
     }
 )
@@ -19,11 +20,14 @@ const loginUser = createAsyncThunk(
     async (_,thunkAPI)=>{
         try {
             const { email_id, password } = thunkAPI.getState().user.user;
-            if(!emailPattern.test(email_id))  throw new Error("Invalid email");
-            if(!pattern.test(password)) throw new Error('Create strong password *(AZaz09!#$@)')
+            if(!email_id) throw new Error('Please enter new email!');
+            if(!password) throw new Error('Please enter new password!');
+            if(!emailPattern.test(email_id))  throw new Error("Invalid email!");
+            if(!pattern.test(password)) throw new Error('Password must contain A capital latter, a small latter, a digit and a special character!');
             return await fetchPostRequest('/users/login', {email_id, password});
         } catch (error) {
-            throw new Error('User Not Found!');
+            if(error.message === 'Empty Response') throw new Error('User not found!');
+            else throw error;
         }
     }
 )
@@ -32,7 +36,11 @@ const updateDetails = createAsyncThunk(
     'updateDetails',
     async (_,thunkAPI) => {
         const { username, email } = thunkAPI.getState().user.update;
-        if(!emailPattern.test(email))  throw new Error("Invalid email");
+        const user = thunkAPI.getState().user.user;
+        console.log(email, user.email_id, username, user.username);
+        if(email === user.email_id && username === user.username) throw new Error('Please update values!');
+        if(!username) throw new Error('Please username!');
+        if(!emailPattern.test(email))  throw new Error("Invalid email!");
         try{
             return await fetchPostRequest('/users/editmyprofile', {isPasswordUpdate: false, username, email});
         } catch( error ) {
@@ -109,6 +117,8 @@ const userSlice = createSlice({
         })
         .addCase(getUserDetails.fulfilled, (state, action) => {
             state.user = action.payload;
+            state.update.email = action.payload.email_id;
+            state.update.username = action.payload.username;
             state.status = 'Successful';
         })
         .addCase(getUserDetails.rejected, (state, action) => {
@@ -120,18 +130,13 @@ const userSlice = createSlice({
         })
         .addCase(loginUser.fulfilled,(state, action)=>{
             state.user = action.payload;
+            state.update.email = action.payload.email_id;
+            state.update.username = action.payload.username;
             state.status = 'fulfilled';
         })
         .addCase(loginUser.rejected,(state, action)=>{
             state.status = 'failed';
             state.error = action.error.message;
-            state.user = {
-                id: undefined,
-                email_id: undefined,
-                password: undefined,
-                username: undefined,
-                role: undefined,
-            }
         })
         .addCase(updateDetails.pending, (state, action) => {
             state.status = 'pending';

@@ -11,8 +11,14 @@
     width: 100%;
     gap: 20px;
     padding: 50px;
+    width: 600px;
+    max-width: 100vw;
 }
 .links{
     width: 100%;
     text-align: left;
+}
+
+.errorMsg{
+    min-height: 4.5rem;
 }

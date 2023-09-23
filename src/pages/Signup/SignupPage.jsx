@@ -48,11 +48,13 @@ export default function SignupPage() {
                 <Typography variant="h4" gutterBottom>
                   Create a new account
                 </Typography>
-                {error && <Alert severity="error">{error}</Alert>}
                 <TextField color="primary" id="username" label="Username" variant="outlined" type="text" value={user.username ? user.username: ''} onChange={(e)=>{dispatch(setUsername(e.target.value))}}/>
                 <TextField color="primary" id="email" label="Email" variant="outlined" type="email" value={user.email ? user.email: ''} onChange={(e)=>{dispatch(setEmail(e.target.value))}}/>
                 <TextField color="primary" id="password" label="Password" variant="outlined" type="password" value={user.password ? user.password: ''} onChange={(e)=>{dispatch(setPassword(e.target.value))}}/>
                 <TextField color="primary" id="confirmpassword" label="Confirm Password" variant="outlined" type="text" value={user.confirmPassword ? user.confirmPassword: ''} onChange={(e)=>{dispatch(setConfirmPassword(e.target.value))}}/>
+                <div className={styles.errorMsg}>
+                  {error && <Alert severity="error">{error}</Alert>}
+                </div>
                 <Link
                 className={styles.links}
                   component="div"
@@ -62,7 +64,7 @@ export default function SignupPage() {
                     handleSubmit(e);
                   }}
                 >
-                  <Button color="primary" variant="contained">Register</Button>
+                  <Button sx={{ width: '100%'}} color="primary" variant="contained">Register</Button>
                 </Link>
                 <Link
                 className={styles.links}
